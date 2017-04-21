@@ -1,3 +1,18 @@
-# rawdog turns go interfaces into mock objects for testing!
+rawdog
+======
 
-> go get github.com/pt-arvind/rawdog
+## turn go interfaces into mock objects for testing
+
+```bash
+ go get github.com/pt-arvind/rawdog
+ ```
+
+### usage
+```
+rawdog <input file> <output file>
+```
+
+```bash
+rawdog somefile.go mock_interfaces.go
+
+```
