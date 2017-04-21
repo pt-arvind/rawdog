@@ -1,8 +1,9 @@
 rawdog
 ======
+turn go interfaces into mock objects for testing
 
-## turn go interfaces into mock objects for testing
 
+### get the tool
 ```bash
  go get github.com/pt-arvind/rawdog
  ```
