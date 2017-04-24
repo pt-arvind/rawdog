@@ -15,6 +15,8 @@ const (
 	Value VariableKind = iota
 	Pointer
 	Slice
+	Variadic
+	GoInterface
 )
 
 type Param struct {
@@ -91,7 +93,7 @@ func main() {
 				if !success {
 					continue
 				}
-				for _, param := range ftype.Params.List {
+				for _, param := range ftype.Params.List { //method params
 					p := Param{}
 					p.Name = param.Names[0].Name
 
@@ -123,6 +125,23 @@ func main() {
 
 					}
 
+					//variadic
+					eType, success := param.Type.(*ast.Ellipsis)
+					if success {
+						_, success := eType.Elt.(*ast.InterfaceType) //TODO: this should really use a generic function that accepts all possibilities
+						if success {
+							p.Type = "...interface{}"
+							p.Kind = Variadic
+						}
+					}
+
+					//interface{}
+					_, success = param.Type.(*ast.InterfaceType)
+					if success {
+						p.Type = "interface{}"
+						p.Kind = GoInterface
+					}
+
 					meth.Params = append(meth.Params, p)
 				}
 				for _, result := range ftype.Results.List {
@@ -150,6 +169,15 @@ func main() {
 						elt, success := sType.Elt.(*ast.Ident)
 						if success {
 							r.Type = "[]" + packageName + "." + elt.Name
+						}
+					}
+
+					// custom interface
+					cType, success := result.Type.(*ast.SelectorExpr)
+					if success {
+						x, success := cType.X.(*ast.Ident)
+						if success {
+							r.Type = x.Name + "." + cType.Sel.Name
 						}
 					}
 
@@ -206,12 +234,12 @@ func buildStruct(i Interface, mockPrefix string, callbackSuffix string) string {
 		for _, p := range m.Params {
 			paramString = append(paramString, p.Name+" "+p.Type)
 		}
-		params := strings.Join(paramString, ",")
+		params := strings.Join(paramString, ", ")
 
 		for _, r := range m.Returns {
 			returnString = append(returnString, r.Type)
 		}
-		returns := strings.Join(returnString, ",")
+		returns := strings.Join(returnString, ", ")
 
 		method := fmt.Sprintf("%s%s func(%s) (%s)", m.Name, callbackSuffix, params, returns)
 		structString = fmt.Sprintf("%s\t%s\n", structString, method)
@@ -228,22 +256,22 @@ func buildMethod(m Method, mockName string, callbackSuffix string) string {
 		paramString = append(paramString, p.Name+" "+p.Type)
 		callString = append(callString, p.Name)
 	}
-	calls := strings.Join(callString, ",")
-	params := strings.Join(paramString, ",")
+	calls := strings.Join(callString, ", ")
+	params := strings.Join(paramString, ", ")
 
 	returnsString := []string{}
 	for _, r := range m.Returns {
 		returnString = append(returnString, r.Type)
 
-		ret := "nil"
+		ret := "nil" //for pointers, interfaces
 		if r.Kind == Slice {
 			ret = "[]"
 		}
 
 		returnsString = append(returnsString, ret)
 	}
-	returns := strings.Join(returnString, ",")
-	returnCalls := strings.Join(returnsString, ",")
+	returns := strings.Join(returnString, ", ")
+	returnCalls := strings.Join(returnsString, ", ")
 
 	method := fmt.Sprintf("func (m *%s) %s(%s) (%s) {\n", mockName, m.Name, params, returns)
 	method = fmt.Sprintf("%s\tif m.%s%s != nil {\n", method, m.Name, callbackSuffix)
