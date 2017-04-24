@@ -168,7 +168,7 @@ func main() {
 		i.Name = interfaceName
 		i.Package = packageName
 
-		allMocks = fmt.Sprintf("%s\n\n", buildMock(i))
+		allMocks = fmt.Sprintf("%s\n\n%s", allMocks, buildMock(i))
 	}
 
 	file, err := os.Create(output)
