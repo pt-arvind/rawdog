@@ -116,11 +116,6 @@ func typeFromField(i interface{}, pkg string) innerParam {
 func paramFromMember(param *ast.Field, packageName string) []Param {
 	ps := []Param{}
 
-	// inner := typeFromField(param.Type, packageName)
-	// if len(param.Names) > 0 {
-	// 	p.Name = param.Names[0].Name
-	// }
-
 	for _, name := range param.Names {
 		p := Param{}
 		inner := typeFromField(param.Type, packageName)
@@ -303,10 +298,7 @@ func buildMethod(m Method, mockName string, callbackSuffix string) string {
 	for _, r := range m.Returns {
 		returnString = append(returnString, r.Type)
 
-		ret := "nil" //for pointers, interfaces
-		if r.Kind == Slice {
-			ret = "[]"
-		}
+		ret := ZeroValueFor(r.Kind, r.Type)
 
 		returnsString = append(returnsString, ret)
 	}
