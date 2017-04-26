@@ -211,23 +211,24 @@ func main() {
 
 func buildMock(i Interface) string {
 	callbackSuffix := "Callback"
-	mockPrefix := "Mock" + i.Name
+	mockName := "Mock" + i.Name
 
-	structDef := buildStruct(i, mockPrefix, callbackSuffix)
+	structDef := buildStruct(i, mockName, callbackSuffix)
 	methodDefs := []string{}
 	for _, m := range i.Methods {
-		methodDef := buildMethod(m, mockPrefix, callbackSuffix)
+		methodDef := buildMethod(m, mockName, callbackSuffix)
 		methodDefs = append(methodDefs, methodDef)
 	}
 
 	methodDef := strings.Join(methodDefs, "\n")
+	resetDef := buildResetMethod(i, mockName, callbackSuffix)
 
-	mockDef := fmt.Sprintf("%s\n\n%s", structDef, methodDef)
+	mockDef := fmt.Sprintf("%s\n\n%s\n%s", structDef, methodDef, resetDef)
 	return mockDef
 }
 
-func buildStruct(i Interface, mockPrefix string, callbackSuffix string) string {
-	structString := fmt.Sprintf("type %s struct {\n", mockPrefix)
+func buildStruct(i Interface, mockName string, callbackSuffix string) string {
+	structString := fmt.Sprintf("type %s struct {\n", mockName)
 	for _, m := range i.Methods {
 		paramString := []string{}
 		returnString := []string{}
@@ -246,6 +247,17 @@ func buildStruct(i Interface, mockPrefix string, callbackSuffix string) string {
 	}
 	structString = fmt.Sprintf("%s}", structString)
 	return structString
+}
+
+func buildResetMethod(i Interface, mockName string, callbackSuffix string) string {
+	method := fmt.Sprintf("func (m *%s) ResetMock() {\n", mockName)
+	for _, m := range i.Methods {
+		// methodDef := buildMethod(m, mockPrefix, callbackSuffix)
+		// methodDefs = append(methodDefs, methodDef)
+		method = fmt.Sprintf("%s\tm.%s%s = nil\n", method, m.Name, callbackSuffix)
+	}
+	method = fmt.Sprintf("%s}\n", method)
+	return method
 }
 
 func buildMethod(m Method, mockName string, callbackSuffix string) string {
