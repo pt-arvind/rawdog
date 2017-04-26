@@ -113,18 +113,36 @@ func typeFromField(i interface{}, pkg string) innerParam {
 	return p
 }
 
-func paramFromMember(param *ast.Field, packageName string) Param {
-	p := Param{}
+func paramFromMember(param *ast.Field, packageName string) []Param {
+	ps := []Param{}
 
-	inner := typeFromField(param.Type, packageName)
-	if len(param.Names) > 0 {
-		p.Name = param.Names[0].Name
+	// inner := typeFromField(param.Type, packageName)
+	// if len(param.Names) > 0 {
+	// 	p.Name = param.Names[0].Name
+	// }
+
+	for _, name := range param.Names {
+		p := Param{}
+		inner := typeFromField(param.Type, packageName)
+		if inner.Success {
+			p.Name = name.Name
+			p.Type = inner.Type
+			p.Kind = inner.Kind
+		}
+		ps = append(ps, p)
 	}
-	if inner.Success {
-		p.Type = inner.Type
-		p.Kind = inner.Kind
+
+	if len(param.Names) == 0 {
+		p := Param{}
+		inner := typeFromField(param.Type, packageName)
+		if inner.Success {
+			p.Type = inner.Type
+			p.Kind = inner.Kind
+		}
+		ps = append(ps, p)
 	}
-	return p
+
+	return ps
 }
 
 func main() {
@@ -186,13 +204,13 @@ func main() {
 				for _, param := range ftype.Params.List { //method params
 					p := paramFromMember(param, packageName)
 
-					meth.Params = append(meth.Params, p)
+					meth.Params = append(meth.Params, p...)
 				}
 				for _, result := range ftype.Results.List {
 
 					r := paramFromMember(result, packageName)
 
-					meth.Returns = append(meth.Returns, r)
+					meth.Returns = append(meth.Returns, r...)
 				}
 				methods = append(methods, meth)
 			}
