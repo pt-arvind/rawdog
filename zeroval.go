@@ -43,7 +43,7 @@ func ZeroValueFor(kind VariableKind, vType string) string {
 	}
 
 	if kind == Slice {
-		return "[]"
+		return "nil"
 	}
 
 	if kind == Variadic {
