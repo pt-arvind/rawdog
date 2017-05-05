@@ -77,7 +77,7 @@ func makeService(modelFile string, serviceFile string) {
 	cstr := Constructor(domainType+"Repo", domainType+"Service")
 	impl := ConformInterface(methods, domainType+"Service")
 
-	serviceOut := fmt.Sprintf("\n%v\n%v\n%v\n%v", svcInt, repoInt, cstr, impl)
+	serviceOut := fmt.Sprintf("package domain\n%v\n%v\n%v\n%v", svcInt, repoInt, cstr, impl)
 
 	file, err := os.Create(output)
 	if err != nil {

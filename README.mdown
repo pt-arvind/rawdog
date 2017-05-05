@@ -8,7 +8,7 @@ turn go interfaces into mock objects for testing
  go get github.com/pt-arvind/rawdog
  ```
 
-### usage
+### how to rawdog it
 
 ```bash
 rawdog -m somefile.go mock_interfaces.go
