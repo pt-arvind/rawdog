@@ -79,6 +79,9 @@ func makeService(modelFile string, serviceFile string) {
 
 	serviceOut := fmt.Sprintf("package domain\n%v\n%v\n%v\n%v", svcInt, repoInt, cstr, impl)
 
+	//HACK: instead of figuring out how to not have domain prepend, im just removing all of them after the fact -_-
+	serviceOut = strings.Replace(serviceOut, "domain.", "", -1)
+
 	file, err := os.Create(output)
 	if err != nil {
 		fmt.Printf("ERROR: %v\n", err)
