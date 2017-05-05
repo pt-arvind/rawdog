@@ -9,11 +9,14 @@ turn go interfaces into mock objects for testing
  ```
 
 ### usage
-```
-rawdog <input file> <output file>
-```
 
 ```bash
 rawdog -m somefile.go mock_interfaces.go
+
+```
+
+To make a service from an interface:
+```bash
+rawdog -s dbitem.go dbitem_service.go
 
 ```
