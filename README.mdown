@@ -14,6 +14,6 @@ rawdog <input file> <output file>
 ```
 
 ```bash
-rawdog somefile.go mock_interfaces.go
+rawdog -m somefile.go mock_interfaces.go
 
 ```
