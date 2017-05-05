@@ -35,5 +35,8 @@ func main() {
 		return
 	}
 
+	// //FIXME: temporary
+	// makeService("./test/account.go", "./test/account_service.go")
+
 	flag.Usage()
 }
