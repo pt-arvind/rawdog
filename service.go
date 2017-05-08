@@ -76,8 +76,9 @@ func makeService(modelFile string, serviceFile string) {
 	repoInt := ServiceInterface(methods, domainType+"Repo")
 	cstr := Constructor(domainType+"Repo", domainType+"Service")
 	impl := ConformInterface(methods, domainType+"Service")
+	str := Struct(domainType+"Repo", domainType+"Service")
 
-	serviceOut := fmt.Sprintf("package domain\n%v\n%v\n%v\n%v", svcInt, repoInt, cstr, impl)
+	serviceOut := fmt.Sprintf("package domain\n%v\n%v\n%v\n%v\n%v", svcInt, repoInt, str, cstr, impl)
 
 	//HACK: instead of figuring out how to not have domain prepend, im just removing all of them after the fact -_-
 	serviceOut = strings.Replace(serviceOut, "domain.", "", -1)
@@ -92,8 +93,15 @@ func makeService(modelFile string, serviceFile string) {
 	file.WriteString(serviceOut)
 }
 
+func Struct(repoName string, serviceName string) string {
+	str := fmt.Sprintf("type %s struct {\n", serviceName)
+	str = fmt.Sprintf("%s\trepo I%s\n", str, repoName)
+	str = fmt.Sprintf("%s}\n", str)
+	return str
+}
+
 func Constructor(repoName string, serviceName string) string {
-	constructor := fmt.Sprintf("func New%s(repo %s) *%s\n", serviceName, repoName, serviceName)
+	constructor := fmt.Sprintf("func New%s(repo %s) *%s {\n", serviceName, repoName, serviceName)
 	constructor = fmt.Sprintf("%s\ts := new(%s)\n", constructor, serviceName)
 	constructor = fmt.Sprintf("%s\ts.repo = repo\n", constructor)
 	constructor = fmt.Sprintf("%s\treturn s\n}", constructor)
@@ -165,6 +173,6 @@ func InterfaceMethod(serviceName string, m Method) string {
 	}
 	returns := strings.Join(returnString, ", ")
 
-	method := fmt.Sprintf("func %s(%s) (%s)\n", m.Name, params, returns)
+	method := fmt.Sprintf("%s(%s) (%s)\n", m.Name, params, returns)
 	return method
 }
