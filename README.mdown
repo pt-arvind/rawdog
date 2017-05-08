@@ -1,22 +1,22 @@
 rawdog
 ======
-turn go interfaces into mock objects for testing
 
-
-### get the tool
+## get the tool
 ```bash
  go get github.com/pt-arvind/rawdog
  ```
 
-### how to rawdog it
+## how to rawdog it
 
+### turn interfaces into mocks
 ```bash
 rawdog -m somefile.go mock_interfaces.go
 
 ```
 
-To make a service from an interface:
+### turn models into services aka `rawdog some models`
 ```bash
 rawdog -s dbitem.go dbitem_service.go
 
 ```
+
