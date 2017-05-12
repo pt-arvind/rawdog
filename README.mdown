@@ -20,3 +20,7 @@ rawdog -s dbitem.go dbitem_service.go
 
 ```
 
+### make controllers
+```bash
+rawdog -c ResourcePolicy ./app/webapi/adapter/controller
+```
