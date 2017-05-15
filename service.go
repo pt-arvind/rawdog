@@ -94,14 +94,15 @@ func makeService(modelFile string, serviceFile string) {
 }
 
 func Struct(repoName string, serviceName string) string {
-	str := fmt.Sprintf("type %s struct {\n", serviceName)
+	str := fmt.Sprintf("// %s implements the service for %s items.\ntype %s struct {\n", serviceName, serviceName[0:len(serviceName)-7], serviceName)
 	str = fmt.Sprintf("%s\trepo I%s\n", str, repoName)
 	str = fmt.Sprintf("%s}\n", str)
 	return str
 }
 
+// NewAccountService returns the service for managing accounts.
 func Constructor(repoName string, serviceName string) string {
-	constructor := fmt.Sprintf("func New%s(repo %s) *%s {\n", serviceName, repoName, serviceName)
+	constructor := fmt.Sprintf("// New%s returns the service for managing %s items.\nfunc New%s(repo I%s) *%s {\n", serviceName, serviceName[0:len(serviceName)-7], serviceName, repoName, serviceName)
 	constructor = fmt.Sprintf("%s\ts := new(%s)\n", constructor, serviceName)
 	constructor = fmt.Sprintf("%s\ts.repo = repo\n", constructor)
 	constructor = fmt.Sprintf("%s\treturn s\n}", constructor)
@@ -138,15 +139,31 @@ func InterfaceConformance(m Method, serviceName string) string {
 		returnsString = append(returnsString, ret)
 	}
 	returns := strings.Join(returnString, ", ")
+	commentStr := fmt.Sprintf("%s", m.Name)
+	if strings.HasPrefix(commentStr, "All") {
+		commentStr = fmt.Sprintf("%s gets all %s.", commentStr, serviceName)
+	} else if strings.HasPrefix(commentStr, "By") {
+		commentStr = fmt.Sprintf("%s gets %s by %s.", commentStr, serviceName, commentStr[2:])
+	} else if commentStr == "Store" {
+		commentStr = fmt.Sprintf("%s stores a %s record.", commentStr, serviceName)
+	} else if commentStr == "DeleteByID" {
+		commentStr = fmt.Sprintf("%s marks a %s record as deleted.", commentStr, serviceName)
+	}
 
-	method := fmt.Sprintf("func (s *%s) %s(%s) (%s) {\n", serviceName, m.Name, params, returns)
+	method := fmt.Sprintf("// %s \nfunc (s *%s) %s(%s) (%s) {\n", commentStr, serviceName, m.Name, params, returns)
 	method = fmt.Sprintf("%s\treturn s.repo.%s(%s)\n}\n", method, m.Name, calls)
 
 	return method
 }
 
 func ServiceInterface(methods []Method, serviceName string) string {
-	serviceInterfaceStr := fmt.Sprintf("type I%s interface {\n", serviceName)
+	var serviceInterfaceStr string
+	if strings.HasSuffix(serviceName, "Service") {
+		serviceInterfaceStr = fmt.Sprintf("\n//I%s is the interface for %s items.\n", serviceName, serviceName[0:len(serviceName)-7])
+	} else {
+		serviceInterfaceStr = fmt.Sprintf("//I%s represents the service for storage of %s items.\n", serviceName, serviceName[0:len(serviceName)-4])
+	}
+	serviceInterfaceStr = fmt.Sprintf("%stype I%s interface {\n", serviceInterfaceStr, serviceName)
 	for _, method := range methods {
 		iMethodStr := InterfaceMethod(serviceName, method)
 		serviceInterfaceStr = fmt.Sprintf("%s\t%s", serviceInterfaceStr, iMethodStr)
