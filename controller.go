@@ -22,9 +22,9 @@ func wordsFromCtrl(controllerName string) []string {
 	return words
 }
 
-func route(controllerName string) string {
+func route(controllerName string, delim string) string {
 	words := wordsFromCtrl(controllerName)
-	rt := strings.Join(words, "-")
+	rt := strings.Join(words, delim)
 
 	return rt
 }
@@ -39,8 +39,9 @@ func description(controllerName string) string {
 func makeController(controllerName string, outdir string) {
 	// input := modelFile
 	// output := serviceFile
-	rt := route(controllerName)
+	rt := route(controllerName, "-")
 	desc := description(controllerName)
+	fileName := route(controllerName, "_")
 
 	ctrlTemplate := `
 	package controller
@@ -98,7 +99,7 @@ func makeController(controllerName string, outdir string) {
 	ctrl = strings.Replace(ctrl, "%route%", rt, -1)
 	ctrl = strings.Replace(ctrl, "%desc%", desc, -1)
 
-	output := filepath.Join(outdir, rt+".go")
+	output := filepath.Join(outdir, fileName+".go")
 	file, err := os.Create(output)
 	if err != nil {
 		fmt.Printf("ERROR: %v\n", err)
