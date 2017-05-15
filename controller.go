@@ -24,7 +24,7 @@ func wordsFromCtrl(controllerName string) []string {
 
 func route(controllerName string) string {
 	words := wordsFromCtrl(controllerName)
-	rt := strings.Join(words, "_")
+	rt := strings.Join(words, "-")
 
 	return rt
 }
@@ -61,7 +61,7 @@ func makeController(controllerName string, outdir string) {
 		Parser domain.IViewParser
 	}
 
-	// New%ctrl_name% returns a new instance of a %desc%
+	// New%ctrl_name% returns a new instance of a %ctrl_name%
 	func New%ctrl_name%(svc logic.I%ctrl_name%Service, v domain.IViewAdapter, p domain.IViewParser) *%ctrl_name% {
 		s := new(%ctrl_name%)
 		s.%ctrl_name% = svc
@@ -77,17 +77,17 @@ func makeController(controllerName string, outdir string) {
 		router.Get("/%route%/:id", h.Show)
 	}
 
-	// Store saves a new %desc% to the database.
+	// Store saves a new %ctrl_name% to the database.
 	func (h *%ctrl_name%) Store(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	// Index shows all %desc% in the system.
+	// Index shows all %ctrl_name% in the system.
 	func (h *%ctrl_name%) Index(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	// Show returns a particular %desc% with a particular ID in the system.
+	// Show returns a particular %ctrl_name% with a particular ID in the system.
 	func (h *%ctrl_name%) Show(w http.ResponseWriter, r *http.Request) {
 		id := router.Param(r, "id")
 
