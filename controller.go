@@ -73,9 +73,9 @@ func makeController(controllerName string, outdir string) {
 
 	// AddRoutes adds routes for interacting with domain %ctrl_name% via the webapi.
 	func (h *%ctrl_name%) AddRoutes() {
-		router.Post("/%route%", h.Store)
-		router.Get("/%route%", h.Index)
-		router.Get("/%route%/:id", h.Show)
+		router.Post(APIV1+"/%route%", h.Store)
+		router.Get(APIV1+"/%route%", h.Index)
+		router.Get(APIV1+"/%route%/:id", h.Show)
 	}
 
 	// Store saves a new %ctrl_name% to the database.
