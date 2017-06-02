@@ -98,9 +98,11 @@ func makeMocks(inFile string, outFile string) {
 					p := paramFromMember(param, packageName)
 					meth.Params = append(meth.Params, p...)
 				}
-				for _, result := range ftype.Results.List {
-					r := paramFromMember(result, packageName)
-					meth.Returns = append(meth.Returns, r...)
+				if ftype.Results != nil { // checks whether method returns anything
+					for _, result := range ftype.Results.List { //returns
+						r := paramFromMember(result, packageName)
+						meth.Returns = append(meth.Returns, r...)
+					}
 				}
 				methods = append(methods, meth)
 			}
