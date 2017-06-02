@@ -305,7 +305,13 @@ func buildMethod(m Method, mockName string, callbackSuffix string) string {
 
 	method := fmt.Sprintf("func (m *%s) %s(%s) (%s) {\n", mockName, m.Name, params, returns)
 	method = fmt.Sprintf("%s\tif m.%s%s != nil {\n", method, m.Name, callbackSuffix)
-	method = fmt.Sprintf("%s\t\treturn m.%s%s(%s)\n\t}\n", method, m.Name, callbackSuffix, calls)
+
+	if len(m.Returns) == 0 { //if function doesn't return anything, so just call it
+		method = fmt.Sprintf("%s\t\tm.%s%s(%s)\n\t}\n", method, m.Name, callbackSuffix, calls)
+	} else {
+		method = fmt.Sprintf("%s\t\treturn m.%s%s(%s)\n\t}\n", method, m.Name, callbackSuffix, calls)
+	}
+
 	method = fmt.Sprintf("%s\treturn %s\n}\n", method, returnCalls)
 
 	return method
