@@ -78,10 +78,7 @@ func makeService(modelFile string, serviceFile string) {
 	impl := ConformInterface(methods, domainType+"Service")
 	str := Struct(domainType+"Repo", domainType+"Service")
 
-	serviceOut := fmt.Sprintf("package domain\n%v\n%v\n%v\n%v\n%v", svcInt, repoInt, str, cstr, impl)
-
-	//HACK: instead of figuring out how to not have domain prepend, im just removing all of them after the fact -_-
-	serviceOut = strings.Replace(serviceOut, "domain.", "", -1)
+	serviceOut := fmt.Sprintf("package logic\n%v\n%v\n%v\n%v\n%v", svcInt, repoInt, str, cstr, impl)
 
 	file, err := os.Create(output)
 	if err != nil {

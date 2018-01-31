@@ -104,7 +104,7 @@ func makeDBService(modelFile string, serviceFile string) {
 func AllQuery(serviceName, tableName string) string {
 	allQueryBlock := fmt.Sprintf("// All will retrieve all %s records in the database.", serviceName)
 	methodStr := fmt.Sprintf("func (s *%sService) All() ([]domain.%s, error) {", serviceName, serviceName)
-	methodContents := fmt.Sprintf("\tdb%sRecords := []%s{}\n\terr := s.db.Select(&db%sRecords, `", serviceName, serviceName, serviceName)
+	methodContents := fmt.Sprintf("\tdb%sRecords := []%s{}\n\terr := s.db.Connection().Select(&db%sRecords, `", serviceName, serviceName, serviceName)
 	sqlQuery := fmt.Sprintf(`
 		Select %s.*
 		FROM %s
@@ -119,7 +119,7 @@ func AllQuery(serviceName, tableName string) string {
 func ByIDQuery(serviceName, tableName string) string {
 	allQueryBlock := fmt.Sprintf("// ByID will retrieve the %s record with the input ID.", serviceName)
 	methodStr := fmt.Sprintf("func (s *%sService) ByID(id string) (*domain.%s, error) {", serviceName, serviceName)
-	methodContents := fmt.Sprintf("\tresult := %s{}\n\terr := s.db.Get(&result, `", serviceName)
+	methodContents := fmt.Sprintf("\tresult := %s{}\n\terr := s.db.Connection().Get(&result, `", serviceName)
 	sqlQuery := fmt.Sprintf(`
 		Select %s.*
 		FROM %s
@@ -135,7 +135,7 @@ func ByIDQuery(serviceName, tableName string) string {
 func AllAugmentedQuery(serviceName, tableName string, dbCols []string) string {
 	allQueryBlock := fmt.Sprintf("// AllAugmented will retrieve all %sAugmented records in the database.", serviceName)
 	methodStr := fmt.Sprintf("func (s *%sService) AllAugmented() ([]domain.%sAugmented, error) {", serviceName, serviceName)
-	methodContents := fmt.Sprintf("\tdb%sRecords := []%sAugmented{}\n\terr := s.db.Select(&db%sRecords, `", serviceName, serviceName, serviceName)
+	methodContents := fmt.Sprintf("\tdb%sRecords := []%sAugmented{}\n\terr := s.db.Connection().Select(&db%sRecords, `", serviceName, serviceName, serviceName)
 	var additionalTableStr string
 	var joinStr string
 	for _, dbCol := range dbCols {
@@ -163,7 +163,7 @@ func AllAugmentedQuery(serviceName, tableName string, dbCols []string) string {
 func ByIDAugmentedQuery(serviceName, tableName string, dbCols []string) string {
 	allQueryBlock := fmt.Sprintf("// ByIDAugmented will retrieve the %sAugmented record with the input ID.", serviceName)
 	methodStr := fmt.Sprintf("func (s *%sService) ByIDAugmented(id string) (*domain.%sAugmented, error) {", serviceName, serviceName)
-	methodContents := fmt.Sprintf("\tresult := %sAugmented{}\n\terr := s.db.Get(&result, `", serviceName)
+	methodContents := fmt.Sprintf("\tresult := %sAugmented{}\n\terr := s.db.Connection().Get(&result, `", serviceName)
 	var additionalTableStr string
 	var joinStr string
 	for _, dbCol := range dbCols {
@@ -206,7 +206,7 @@ func ByForeignKeyQueries(serviceName, tableName string, dbCols, varNames []strin
 	for i, foreignKey := range foreignKeyList {
 		allQueryBlock := fmt.Sprintf("// By%s will retrieve all %s records in the database with a given %s.", foreignKeyVarList[i], serviceName, foreignKey)
 		methodStr := fmt.Sprintf("func (s *%sService) By%s(%s string) ([]domain.%s, error) {", serviceName, foreignKeyVarList[i], foreignKey, serviceName)
-		methodContents := fmt.Sprintf("\tdb%sRecords := []%s{}\n\terr := s.db.Select(&db%sRecords, `", serviceName, serviceName, serviceName)
+		methodContents := fmt.Sprintf("\tdb%sRecords := []%s{}\n\terr := s.db.Connection().Select(&db%sRecords, `", serviceName, serviceName, serviceName)
 		sqlQuery := fmt.Sprintf(`
 		Select %s.*
 		FROM %s
@@ -215,7 +215,7 @@ func ByForeignKeyQueries(serviceName, tableName string, dbCols, varNames []strin
 		`, tableName, tableName, tableName, foreignKey)
 		handleErrStr := fmt.Sprintf("\n\tif err != nil {\n\t\t return nil, err\n\t}")
 		appendResultArray := fmt.Sprintf("\tresult := []domain.%s{}\n\tfor _, %s := range db%sRecords {\n\t\tresult = append(result, *%s.toEntity())\n\t}\n\n\treturn result, nil\n}", serviceName, tableName, serviceName, tableName)
-		allQueryBlock = fmt.Sprintf("%s\n%s\n%s%s`, %s)\n%s\n\n%s", allQueryBlock, methodStr, methodContents, sqlQuery, foreignKey, handleErrStr, appendResultArray)
+		allQueryBlock = fmt.Sprintf("%s\n%s\n%s%s`, %s)\n%s\n\n%s\n\n", allQueryBlock, methodStr, methodContents, sqlQuery, foreignKey, handleErrStr, appendResultArray)
 		byForeignKeyQueriesStr = byForeignKeyQueriesStr + allQueryBlock
 	}
 
@@ -249,7 +249,7 @@ func ByForeignKeyAugmentedQueries(serviceName, tableName string, dbCols, varName
 		allQueryBlock := fmt.Sprintf("// By%sAugmented will retrieve all %s records in the database with a given %s.", foreignKeyVarList[i], serviceName, foreignKey)
 		methodStr := fmt.Sprintf("func (s *%sService) By%sAugmented(%s string) ([]domain.%sAugmented, error) {", serviceName, foreignKeyVarList[i], foreignKey, serviceName)
 
-		methodContents := fmt.Sprintf("\tdb%sRecords := []%sAugmented{}\n\terr := s.db.Select(&db%sRecords, `", serviceName, serviceName, serviceName)
+		methodContents := fmt.Sprintf("\tdb%sRecords := []%sAugmented{}\n\terr := s.db.Connection().Select(&db%sRecords, `", serviceName, serviceName, serviceName)
 		sqlQuery := fmt.Sprintf(`
 		Select %s.*%s
 		FROM %s%s
@@ -268,7 +268,7 @@ func ByForeignKeyAugmentedQueries(serviceName, tableName string, dbCols, varName
 func StoreQuery(serviceName, tableName string, dbCols, varNames []string) string {
 	allQueryBlock := fmt.Sprintf("// Store will store a %s record in the database.", serviceName)
 	methodStr := fmt.Sprintf("func (s *%sService) Store(item *domain.%s) (*domain.%s, error) {", serviceName, serviceName, serviceName)
-	methodContents := fmt.Sprint("\tres, err := s.db.Exec(`")
+	methodContents := fmt.Sprint("\tres, err := s.db.Connection().Exec(`")
 	fieldList := ""
 	qList := ""
 	vList := ""
@@ -315,7 +315,7 @@ func StoreQuery(serviceName, tableName string, dbCols, varNames []string) string
 func DeleteByIDQuery(serviceName, tableName string) string {
 	deleteQueryBlock := fmt.Sprintf("// DeleteByID mark the %s record with the specified ID as deleted.", serviceName)
 	methodStr := fmt.Sprintf("func (s *%sService) DeleteByID(id string) (error) {", serviceName)
-	methodContents := fmt.Sprint("\t_, err := s.db.Exec(`")
+	methodContents := fmt.Sprint("\t_, err := s.db.Connection().Exec(`")
 	sqlQuery := fmt.Sprintf(`
 		UPDATE %s
 		SET deleted_at = NOW()
